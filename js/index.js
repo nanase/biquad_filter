@@ -34,6 +34,7 @@ const filters = [
     control: ['sampling_rate', 'cutoff_freq', 'q'],
   }
 ];
+const impulse_size = 1024;
 
 function update_control(filter) {
   // enable
@@ -43,6 +44,115 @@ function update_control(filter) {
   // disable
   filter_controls.filter(x => !filter.control.some(y => x == y))
     .forEach(c => $(`#${c}`).attr('disabled', 'true').parents('.control-row').addClass('disabled'));
+}
+
+function draw_frequency_response(impulse_response, canvas, width, height) {
+  const imag = new Float64Array(impulse_response.length);
+  const frequencyResponse = new Float64Array(impulse_response.length / 2);
+  transform(impulse_response, imag);
+
+  for (var i = 0; i < frequencyResponse.length; i++)
+    frequencyResponse[i] = Math.log10(Math.sqrt(impulse_response[i] * impulse_response[i] + imag[i] * imag[i])) * 20;
+
+  //console.info(frequencyResponse);
+
+  const magnitude = 4.0;
+
+  // sub axis
+  {
+    canvas.strokeStyle = '#444';
+    [24, 12, 6, 3, -3, -6, -12, -24].forEach(db => {
+      canvas.beginPath();
+      canvas.moveTo(0, height / 2 - db * magnitude);
+      canvas.lineTo(width, height / 2 - db * magnitude);
+      canvas.stroke();
+    });
+
+    // 0 dB
+    canvas.strokeStyle = '#666';
+    canvas.beginPath();
+    canvas.moveTo(0, height / 2);
+    canvas.lineTo(width, height / 2);
+    canvas.stroke();
+  }
+
+  // frequency response
+  {
+    canvas.strokeStyle = '#fff';
+    canvas.beginPath();
+    canvas.moveTo(0, height / 2 - frequencyResponse[0] * magnitude);
+
+    for (var i = 0; i < frequencyResponse.length; i++)
+      canvas.lineTo((i / frequencyResponse.length) * width, height / 2 - frequencyResponse[i] * magnitude);
+
+    canvas.stroke();
+  }
+
+  // axis
+  {
+    canvas.strokeStyle = '#aaa';
+    canvas.beginPath();
+    canvas.moveTo(0, 0);
+    canvas.lineTo(0, height);
+    canvas.lineTo(width, height);
+    canvas.stroke();
+  }
+}
+
+function draw_impulse_response(impulse_response, canvas, width, height) {
+  const magnitude = 0.8;
+
+  // sub axis
+  {
+    canvas.strokeStyle = '#444';
+    canvas.beginPath();
+    canvas.moveTo(0, height / 2 - height * 0.5 * magnitude);
+    canvas.lineTo(width, height / 2 - height * 0.5 * magnitude);
+    canvas.stroke();
+
+    canvas.beginPath();
+    canvas.moveTo(0, height / 2);
+    canvas.lineTo(width, height / 2);
+    canvas.stroke();
+
+    canvas.beginPath();
+    canvas.moveTo(0, height / 2 + height * 0.5 * magnitude);
+    canvas.lineTo(width, height / 2 + height * 0.5 * magnitude);
+    canvas.stroke();
+  }
+
+  // impulse response
+  {
+    canvas.strokeStyle = '#fff';
+    canvas.beginPath();
+    canvas.moveTo(0, height / 2);
+
+    for (var i = 0; i < width; i++)
+      canvas.lineTo(i, height / 2 + impulse_response[i] * height * 0.5 * magnitude);
+
+    canvas.stroke();
+  }
+
+  // axis
+  {
+    canvas.strokeStyle = '#aaa';
+    canvas.beginPath();
+    canvas.moveTo(0, 0);
+    canvas.lineTo(0, height);
+    canvas.stroke();
+  }
+}
+
+function update_response(coefficients) {
+  const width = $('#response').width();
+  const height = $('#response').height();
+  const impulseRenponse = Calc.getImpulseResponse(coefficients, impulse_size);
+  const canvas = $('#response')[0].getContext('2d');
+
+  $('#response').attr('height', height).attr('width', width);
+  canvas.clearRect(0, 0, width, height);
+  draw_frequency_response(impulseRenponse, canvas, width, height);
+  //draw_impulse_response(impulseRenponse, canvas, width, height);
 }
 
 function update_filter() {
@@ -55,9 +165,14 @@ function update_filter() {
     sampling_rate: $('#sampling_rate').val(),
   };
   update_control(filters[filter_type]);
-  const result = Coefficients.normalize(filters[filter_type].func(parameters));
+  const coefficients = Coefficients.normalize(filters[filter_type].func(parameters));
+
+  // diagram
   const diagram = $($('.diagram')[0].contentDocument);
-  diagram_assign.forEach((a, i) => $(a, diagram).text(`${result[i].toFixed(9)}`));
+  diagram_assign.forEach((a, i) => $(a, diagram).text(`${coefficients[i].toFixed(9)}`));
+
+  // impulse response
+  update_response(coefficients);
 }
 
 String.prototype.withCommas = Number.prototype.withCommas = function () { return String(this).replace(/\B(?=(\d{3})+(?!\d))/g, ","); }
