@@ -55,14 +55,14 @@ class Coefficients {
     ];
   }
 
-  static bandstop(sampling_rate, cutoff, bandwidth, q) {
+  static bandstop(sampling_rate, cutoff, bandwidth) {
     const omega = this.calcOmega(sampling_rate, cutoff);
     const alpha = Math.sin(omega) * Math.sinh(Math.log(2.0) / 2.0 * bandwidth * omega / Math.sin(omega));
   
     return [
-      q,                               // b0
+      1.0,                             // b0
       -2.0 * Math.cos(omega),          // b1
-      q,                               // b2
+      1.0,                             // b2
       1.0 + alpha,                     // a0
       -2.0 * Math.cos(omega),          // a1
       1.0 - alpha,                     // a2

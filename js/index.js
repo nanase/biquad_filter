@@ -14,8 +14,8 @@ const filters = [
     control: ['sampling_rate', 'cutoff_freq', 'bandwidth', 'q'],
   },
   {
-    func: p => Coefficients.bandstop(p.sampling_rate, p.cutoff, p.bandwidth, p.q),
-    control: ['sampling_rate', 'cutoff_freq', 'bandwidth', 'q'],
+    func: p => Coefficients.bandstop(p.sampling_rate, p.cutoff, p.bandwidth),
+    control: ['sampling_rate', 'cutoff_freq', 'bandwidth'],
   },
   {
     func: p => Coefficients.lowshelf(p.sampling_rate, p.cutoff, p.gain, p.q),
