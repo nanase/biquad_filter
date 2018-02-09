@@ -1,0 +1,94 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 262.51 160.92">
+  <defs>
+    <symbol id="a" overflow="visible">
+      <path d="M4.6-.75A.9.9 0 0 0 5-.83c.11-.06.21-.14.3-.23.1-.1.17-.22.25-.35l.22-.4.14-.3h.54L5.85 0H.56l.12-.52 5.2-5.71H3.85a1.15 1.15 0 0 0-.76.28 4.3 4.3 0 0 0-.5.78l-.02.04h-.54l.57-1.84h4.99l-.13.53-5.2 5.69zm0 0"/>
+    </symbol>
+    <symbol id="b" overflow="visible">
+      <path d="M.17-1.64v-.53H2v.53zm0 0"/>
+    </symbol>
+    <symbol id="c" overflow="visible">
+      <path d="M.67 0v-.3h.47l.22-.01a.44.44 0 0 0 .19-.07.3.3 0 0 0 .12-.15.6.6 0 0 0 .05-.27v-3.67l-.27.3a2.3 2.3 0 0 1-.43.37.46.46 0 0 1-.2.05.34.34 0 0 1-.26-.1.4.4 0 0 1-.1-.27l.21-.07a5.54 5.54 0 0 0 .81-.47l.49-.37h.45V-.8c0 .12.02.2.05.27.03.06.07.12.12.16.05.03.11.05.18.06L3-.3h.34V0zm0 0"/>
+    </symbol>
+    <clipPath id="d">
+      <path d="M78 29h27v27H78zm0 0"/>
+    </clipPath>
+    <clipPath id="e">
+      <path d="M78 143h27v28.57H78zm0 0"/>
+    </clipPath>
+    <clipPath id="f">
+      <path d="M133 29h31v27h-31zm0 0"/>
+    </clipPath>
+    <clipPath id="g">
+      <path d="M133 143h31v28.57h-31zm0 0"/>
+    </clipPath>
+    <clipPath id="h">
+      <path d="M192 143h27v28.57h-27zm0 0"/>
+    </clipPath>
+  </defs>
+  <text id="b0" x="65" y="10" fill="#fff" font-size="7">1.000000000</text>
+  <text id="b1" x="65" y="67.5" fill="#fff" font-size="7">0.000000000</text>
+  <text id="b2" x="65" y="127.5" fill="#fff" font-size="7">0.000000000</text>
+  <text id="a1" x="140" y="67.5" fill="#fff" font-size="7">0.000000000</text>
+  <text id="a2" x="140" y="127.5" fill="#fff" font-size="7">0.000000000</text>
+
+  <path d="M37.56 40.04l-1.84-3.67h7.35l-3.67 7.35zM57.54 23.2l-3.67 1.83v-7.35l3.67 1.84 3.67 1.84zm0 0" fill="#fff"/>
+  <path d="M54.1 21.36H10m29.4 15.01v-14.7M28.38 43.72h22.04v22.05H28.38zm0 0" fill="none" stroke="#fff" stroke-width=".73"/>
+  <use height="100%" width="100%" y="80.44" x="54.66" xlink:href="#a" fill="#fff" transform="translate(-20.82 -19.09)"/>
+  <use height="100%" width="100%" y="70.89" x="62.89" xlink:href="#b" fill="#fff" transform="translate(-20.82 -19.09)"/>
+  <use height="100%" width="100%" y="70.89" x="65.17" xlink:href="#c" fill="#fff" transform="translate(-20.82 -19.09)"/>
+  <path d="M41.23 21.67a1.84 1.84 0 1 1-3.67 0 1.84 1.84 0 0 1 3.67 0zm-3.67 77.16l-1.84-3.67h7.35l-1.84 3.67-1.83 3.68zm0 0" fill="#fff"/>
+  <path d="M39.4 95.16v-29.4M28.38 102.5h22.04v22.06H28.38zm0 0" fill="none" stroke="#fff" stroke-width=".73"/>
+  <use height="100%" width="100%" y="139.23" x="54.66" xlink:href="#a" fill="#fff" transform="translate(-20.82 -19.09)"/>
+  <use height="100%" width="100%" y="129.68" x="62.89" xlink:href="#b" fill="#fff" transform="translate(-20.82 -19.09)"/>
+  <use height="100%" width="100%" y="129.68" x="65.17" xlink:href="#c" fill="#fff" transform="translate(-20.82 -19.09)"/>
+  <path d="M41.23 80.46a1.84 1.84 0 1 1-3.67 0 1.84 1.84 0 0 1 3.67 0zm16.54 1.84l-3.68 1.84v-7.35l3.68 1.84 3.67 1.83zm0 0" fill="#fff"/>
+  <path d="M54.1 80.46H39.4m14.7 58.79H39.4v-14.7" fill="none" stroke="#fff" stroke-width=".73"/>
+  <path d="M57.77 141.09l-3.68 1.84v-7.35l3.68 1.83 3.67 1.84zm0 0" fill="#fff"/>
+  <g clip-path="url(#d)" stroke="#fff" transform="translate(-20.82 -19.09)">
+    <path d="M91.45 46.27l-9.2 5.52V29.74l18.38 11.02zm0 0" fill="none" stroke-width=".73"/>
+  </g>
+  <path d="M70.63 85.97l-9.19 5.51V69.44l18.38 11.02zm0 0" fill="none" stroke="#fff" stroke-width=".73"/>
+  <g clip-path="url(#e)" stroke="#fff" transform="translate(-20.82 -19.09)">
+    <path d="M91.45 163.85l-9.2 5.51v-22.04l18.38 11.02zm0 0" fill="none" stroke-width=".73"/>
+  </g>
+  <path d="M112.88 19.83L109.21 18v7.34l3.67-1.83 3.68-1.84zm0 0" fill="#fff"/>
+  <path d="M109.21 21.67h-29.4" fill="none" stroke="#fff" stroke-width=".73"/>
+  <path d="M112.88 82.3l-3.67 1.84v-7.35l3.67 1.84 3.68 1.83zm0 0" fill="#fff"/>
+  <path d="M109.21 80.46h-29.4" fill="none" stroke="#fff" stroke-width=".73"/>
+  <path d="M112.88 141.09l-3.67 1.84v-7.35l3.67 1.83 3.68 1.84zm0 0" fill="#fff"/>
+  <path d="M109.21 139.25h-29.4" fill="none" stroke="#fff" stroke-width=".73"/>
+  <g clip-path="url(#f)" stroke="#fff" transform="translate(-20.82 -19.09)">
+    <path d="M159.42 40.76a11.03 11.03 0 1 1-22.06-.01 11.03 11.03 0 0 1 22.06.01zm0 0" fill="none" stroke-width=".73"/>
+  </g>
+  <path d="M131.26 21.67h-7.35m3.67 3.67V18m11.02 62.46a11.03 11.03 0 1 1-22.06-.01 11.03 11.03 0 0 1 22.07.01zm-7.34 0h-7.35m3.67 3.68v-7.35" fill="none" stroke="#fff" stroke-width=".73"/>
+  <g clip-path="url(#g)" stroke="#fff" transform="translate(-20.82 -19.09)">
+    <path d="M159.42 158.34a11.03 11.03 0 1 1-22.06-.02 11.03 11.03 0 0 1 22.06.02zm0 0" fill="none" stroke-width=".73"/>
+  </g>
+  <path d="M131.26 139.25h-7.35m3.67 3.68v-7.35" fill="none" stroke="#fff" stroke-width=".73"/>
+  <path d="M125.75 36.37l-1.84 3.67h7.35l-1.84-3.67-1.84-3.67zm0 0" fill="#fff"/>
+  <path d="M127.58 69.44v-29.4" fill="none" stroke="#fff" stroke-width=".73"/>
+  <path d="M125.75 95.16l-1.84 3.67h7.35l-1.84-3.67-1.84-3.68zm0 0" fill="#fff"/>
+  <path d="M127.58 128.23v-29.4m47.77-18.37h-29.4" fill="none" stroke="#fff" stroke-width=".73"/>
+  <path d="M142.28 82.3l3.67 1.84v-7.35l-3.67 1.84-3.67 1.83zm0 0" fill="#fff"/>
+  <path d="M175.35 139.25h-29.4" fill="none" stroke="#fff" stroke-width=".73"/>
+  <path d="M142.28 141.09l3.67 1.84v-7.35l-3.67 1.83-3.67 1.84zm0 0" fill="#fff"/>
+  <path d="M184.54 85.97l9.18 5.51V69.44l-18.37 11.02zm0 0" fill="none" stroke="#fff" stroke-width=".73"/>
+  <g clip-path="url(#h)" stroke="#fff" transform="translate(-20.82 -19.09)">
+    <path d="M205.35 163.85l9.19 5.51v-22.04l-18.38 11.02zm0 0" fill="none" stroke-width=".73"/>
+  </g>
+  <path d="M217.6 98.83l1.84-3.67h-7.35l1.84 3.67 1.84 3.68zm0 0" fill="#fff"/>
+  <path d="M215.77 95.16v-29.4m-11.03 36.74h22.05v22.06h-22.05zm0 0" fill="none" stroke="#fff" stroke-width=".73"/>
+  <use height="100%" width="100%" y="139.23" x="230.57" xlink:href="#a" fill="#fff" transform="translate(-20.82 -19.09)"/>
+  <use height="100%" width="100%" y="129.68" x="238.28" xlink:href="#b" fill="#fff" transform="translate(-20.82 -19.09)"/>
+  <use height="100%" width="100%" y="129.68" x="240.56" xlink:href="#c" fill="#fff" transform="translate(-20.82 -19.09)"/>
+  <path d="M213.93 80.46a1.84 1.84 0 1 0 3.67 0 1.84 1.84 0 0 0-3.67 0zm-16.53-1.83l3.67-1.84v7.35l-3.68-1.84-3.67-1.84zm0 0" fill="#fff"/>
+  <path d="M201.07 80.46h14.7m-14.7 58.79h14.7v-14.7" fill="none" stroke="#fff" stroke-width=".73"/>
+  <path d="M197.4 141.09l3.67 1.84v-7.35l-3.68 1.83-3.67 1.84zm16.22-101.05l-1.83-3.67h7.34l-1.83 3.67-1.84 3.68zm0 0" fill="#fff"/>
+  <path d="M215.46 36.37v-14.7m-10.72 22.05h22.05v22.05h-22.05zm0 0" fill="none" stroke="#fff" stroke-width=".73"/>
+  <use height="100%" width="100%" y="80.44" x="230.75" xlink:href="#a" fill="#fff" transform="translate(-20.82 -19.09)"/>
+  <use height="100%" width="100%" y="70.89" x="238.96" xlink:href="#b" fill="#fff" transform="translate(-20.82 -19.09)"/>
+  <use height="100%" width="100%" y="70.89" x="241.24" xlink:href="#c" fill="#fff" transform="translate(-20.82 -19.09)"/>
+  <path d="M248.84 23.5l-3.68 1.84V18l3.68 1.83 3.67 1.84zm0 0" fill="#fff"/>
+  <path d="M245.16 21.67H138.61" fill="none" stroke="#fff" stroke-width=".73"/>
+  <path d="M217.6 21.67a1.84 1.84 0 1 1-3.67 0 1.84 1.84 0 0 1 3.68 0zm0 0" fill="#fff"/>
+</svg>

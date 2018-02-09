@@ -1,0 +1,63 @@
+@import url("https://fonts.googleapis.com/css?family=Open+Sans:400,700");
+body {
+  background-color: #222;
+  color: #eee;
+  font-family: 'Open Sans', sans-serif;
+  font-size: 14px;
+}
+
+a, a:visited {
+  text-decoration: none;
+  color: inherit;
+}
+
+.navbar {
+  font-weight: bold;
+}
+
+.diagram {
+  max-height: 260px;
+}
+
+select.select-dark {
+  background-color: #222;
+  color: inherit;
+  border: 1px #888 solid;
+  width: auto;
+  font-size: 100%;
+}
+
+.container {
+  margin-top: 1rem;
+}
+
+@media (min-width: 992px) {
+  .control-panel {
+    padding-top: 2rem;
+  }
+}
+
+.disabled {
+  opacity: 0.5;
+}
+
+.control-name {
+  line-height: 2rem;
+}
+
+.control-col {
+  padding-right: 5px;
+  padding-left: 0;
+  font-size: 90%;
+  white-space: nowrap;
+}
+
+.control-col input[type=range] {
+  height: 2rem;
+  width: 90%;
+  margin: 0 5%;
+}
+
+.control-col .control-value {
+  line-height: 2rem;
+}
