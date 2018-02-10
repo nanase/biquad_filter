@@ -35,6 +35,74 @@ const filters = [
   }
 ];
 const impulse_size = 1024;
+const frequency_amplitude_auxiliary_line = [24, 12, 6, 3, -3, -6, -12, -24];
+
+const settings = {
+  impulseResponse: {
+    connected: false,
+    margin: 30,
+    magnitude: { x: 8.0, y: 0.8 },
+    font: '12px san-serif',
+    stroke: '#fff',
+    fill: '#fff',
+    dotSize: 4,
+    auxiliaryLine: {
+      stroke: '#444',
+      values: [1.0, 0.5, -0.5, -1.0],
+    },
+    baseLine: {
+      stroke: '#666',
+    },
+    axis: {
+      stroke: '#aaa',
+    }
+  },
+  frequencyResponse: {
+    margin: { x: 30, y: 20 },
+    magnitude: 8.0,
+    font: '10px san-serif',
+    stroke: '#fff',
+    fill: '#fff',
+    cutoffLine: {
+      stroke: '#666',
+    },
+    auxiliaryLine: {
+      stroke: '#444',
+      x: {
+      },
+      y: {
+        values: [24, 12, 6, 3, -3, -6, -12, -24],
+        texts: [24, 12, 6, -6, -12, -24],
+      },
+    },
+    baseLine: {
+      stroke: '#666',
+    },
+    axis: {
+      stroke: '#aaa',
+    }
+  }
+};
+
+function frequencyFormat(frequency) {
+  if (frequency >= 1000)
+    return `${(frequency / 1000).toFixed(1)}k`;
+  else if (frequency < 100)
+    return frequency.toFixed(1);
+  else
+    return frequency.toFixed(0);
+}
+
+function generateFrequencyAuxiliary(samplingRate) {
+  samplingRate *= 0.5;
+  const interval = Math.pow(5, (Math.log(samplingRate) / Math.log(5)) | 0) / 2.5;
+  const auxiliary = [];
+
+  for (let i = 0, j = interval; j < samplingRate; i++ , j += interval)
+    auxiliary[i] = j;
+
+  return auxiliary;
+}
 
 function update_control(filter) {
   // enable
@@ -46,104 +114,177 @@ function update_control(filter) {
     .forEach(c => $(`#${c}`).attr('disabled', 'true').parents('.control-row').addClass('disabled'));
 }
 
-function draw_frequency_response(impulse_response, canvas, width, height) {
-  const imag = new Float64Array(impulse_response.length);
-  const frequencyResponse = new Float64Array(impulse_response.length / 2);
-  transform(impulse_response, imag);
+function drawFrequencyResponse(impulseResponse, canvas, width, height, parameters) {
+  const real = impulseResponse;
+  const imag = new Float64Array(real.length);
+  transform(real, imag);
+  const frequencyResponse = new Float64Array(real.length / 2).map((_, i) => Math.log10(Math.sqrt(real[i] * real[i] + imag[i] * imag[i])) * 20)
+  const magnitude = settings.frequencyResponse.magnitude;
+  const margin = settings.frequencyResponse.margin;
 
-  for (var i = 0; i < frequencyResponse.length; i++)
-    frequencyResponse[i] = Math.log10(Math.sqrt(impulse_response[i] * impulse_response[i] + imag[i] * imag[i])) * 20;
+  const graphHeight = height - margin.y;
+  const graphCenter = graphHeight / 2;
 
-  //console.info(frequencyResponse);
-
-  const magnitude = 4.0;
-
-  // sub axis
+  // auxiliary line - y
   {
-    canvas.strokeStyle = '#444';
-    [24, 12, 6, 3, -3, -6, -12, -24].forEach(db => {
+    canvas.font = settings.frequencyResponse.font;
+    canvas.textAlign = 'right';
+    canvas.textBaseline = 'middle';
+    canvas.fillStyle = settings.frequencyResponse.fill;
+
+    canvas.strokeStyle = settings.frequencyResponse.auxiliaryLine.stroke;
+    settings.frequencyResponse.auxiliaryLine.y.values.forEach(db => {
       canvas.beginPath();
-      canvas.moveTo(0, height / 2 - db * magnitude);
-      canvas.lineTo(width, height / 2 - db * magnitude);
+      canvas.moveTo(margin.x, graphCenter - db * magnitude);
+      canvas.lineTo(width, graphCenter - db * magnitude);
       canvas.stroke();
     });
 
     // 0 dB
     canvas.strokeStyle = '#666';
     canvas.beginPath();
-    canvas.moveTo(0, height / 2);
-    canvas.lineTo(width, height / 2);
+    canvas.moveTo(margin.x, graphCenter);
+    canvas.lineTo(width, graphCenter);
     canvas.stroke();
+
+    settings.frequencyResponse.auxiliaryLine.y.texts.forEach(db => canvas.fillText(`${db.toFixed(0)}`, margin.x - 4, graphCenter - db * magnitude));
+    canvas.fillText('0', margin.x - 4, graphCenter);
+  }
+
+  // cutoff line
+  {
+    const cutoff = parameters.cutoff / (parameters.sampling_rate * 0.5);
+    canvas.strokeStyle = settings.frequencyResponse.cutoffLine.stroke;
+    canvas.setLineDash([5, 5]);
+    canvas.beginPath();
+    canvas.moveTo(margin.x + cutoff * (width - margin.x), 0);
+    canvas.lineTo(margin.x + cutoff * (width - margin.x), graphHeight);
+    canvas.stroke();
+    canvas.setLineDash([]);
+
+    canvas.font = settings.frequencyResponse.font;
+    canvas.textAlign = cutoff > 0.5 ? 'right' : 'left';
+    canvas.textBaseline = 'top';
+    canvas.fillStyle = settings.frequencyResponse.fill;
+    canvas.fillText(`${parameters.cutoff.withCommas()} Hz`, margin.x + cutoff * (width - margin.x), 0);
+  }
+
+  // auxiliary line - x
+  {
+    canvas.strokeStyle = settings.frequencyResponse.auxiliaryLine.stroke;
+    generateFrequencyAuxiliary(parameters.sampling_rate).forEach(f => {
+      const freq = f / (parameters.sampling_rate * 0.5);
+      canvas.beginPath();
+      canvas.moveTo(margin.x + freq * (width - margin.x), 0);
+      canvas.lineTo(margin.x + freq * (width - margin.x), graphHeight);
+      canvas.stroke();
+    });
   }
 
   // frequency response
   {
-    canvas.strokeStyle = '#fff';
+    canvas.strokeStyle = settings.frequencyResponse.stroke;
     canvas.beginPath();
-    canvas.moveTo(0, height / 2 - frequencyResponse[0] * magnitude);
-
-    for (var i = 0; i < frequencyResponse.length; i++)
-      canvas.lineTo((i / frequencyResponse.length) * width, height / 2 - frequencyResponse[i] * magnitude);
-
+    canvas.moveTo(margin.x, graphCenter - frequencyResponse[0] * magnitude);
+    frequencyResponse.forEach((f, i, a) => canvas.lineTo(margin.x + (i / a.length) * (width - margin.x), graphCenter - f * magnitude));
     canvas.stroke();
+
+    // trim
+    canvas.clearRect(0, graphHeight, width, height);
   }
 
   // axis
   {
-    canvas.strokeStyle = '#aaa';
+    canvas.strokeStyle = settings.frequencyResponse.axis.stroke;
     canvas.beginPath();
-    canvas.moveTo(0, 0);
-    canvas.lineTo(0, height);
-    canvas.lineTo(width, height);
+    canvas.moveTo(margin.x, 0);
+    canvas.lineTo(margin.x, graphHeight);
+    canvas.lineTo(width, graphHeight);
     canvas.stroke();
+  }
+
+  // auxiliary line - x
+  {
+    canvas.font = settings.frequencyResponse.font;
+    canvas.textAlign = 'center';
+    canvas.textBaseline = 'top';
+    canvas.fillStyle = settings.frequencyResponse.fill;
+    generateFrequencyAuxiliary(parameters.sampling_rate).forEach(f => {
+      const freq = f / (parameters.sampling_rate * 0.5);
+      canvas.fillText(`${frequencyFormat(f)}`, margin.x + freq * (width - margin.x), graphHeight);
+    });
   }
 }
 
-function draw_impulse_response(impulse_response, canvas, width, height) {
-  const magnitude = 0.8;
+function drawImpulseResponse(impulseResponse, canvas, width, height) {
+  const magnitude = settings.impulseResponse.magnitude;
+  const margin = settings.impulseResponse.margin;
 
-  // sub axis
+  // auxiliary line
   {
-    canvas.strokeStyle = '#444';
-    canvas.beginPath();
-    canvas.moveTo(0, height / 2 - height * 0.5 * magnitude);
-    canvas.lineTo(width, height / 2 - height * 0.5 * magnitude);
-    canvas.stroke();
+    canvas.font = settings.impulseResponse.font;
+    canvas.textAlign = 'right';
+    canvas.textBaseline = 'middle';
+    canvas.fillStyle = settings.impulseResponse.fill;
+    canvas.strokeStyle = settings.impulseResponse.auxiliaryLine.stroke;
 
+    settings.impulseResponse.auxiliaryLine.values.forEach(value => {
+      canvas.beginPath();
+      canvas.moveTo(margin, height / 2 - height * 0.5 * magnitude.y * value);
+      canvas.lineTo(width, height / 2 - height * 0.5 * magnitude.y * value);
+      canvas.stroke();
+      canvas.fillText(value.toFixed(1), margin - 4, height / 2 - height * 0.5 * magnitude.y * value);
+    });
+
+    canvas.strokeStyle = settings.impulseResponse.baseLine.stroke;
     canvas.beginPath();
-    canvas.moveTo(0, height / 2);
+    canvas.moveTo(margin, height / 2);
     canvas.lineTo(width, height / 2);
     canvas.stroke();
+    canvas.fillText('0.0', margin - 4, height / 2);
+  }
 
+  // axis
+  {
+    canvas.strokeStyle = settings.impulseResponse.axis.stroke;
     canvas.beginPath();
-    canvas.moveTo(0, height / 2 + height * 0.5 * magnitude);
-    canvas.lineTo(width, height / 2 + height * 0.5 * magnitude);
+    canvas.moveTo(margin, 0);
+    canvas.lineTo(margin, height);
     canvas.stroke();
   }
 
   // impulse response
   {
-    canvas.strokeStyle = '#fff';
-    canvas.beginPath();
-    canvas.moveTo(0, height / 2);
+    canvas.strokeStyle = settings.impulseResponse.stroke;
+    canvas.fillStyle = settings.impulseResponse.fill;
 
-    for (var i = 0; i < width; i++)
-      canvas.lineTo(i, height / 2 + impulse_response[i] * height * 0.5 * magnitude);
+    if (settings.impulseResponse.connected) {
+      canvas.beginPath();
+      canvas.moveTo(margin, height / 2);
 
-    canvas.stroke();
-  }
+      for (let i = 0; i < impulseResponse.length && margin + i * magnitude.x < width; i++)
+        canvas.lineTo(margin + i * magnitude.x, height / 2 + impulse_response[i] * height * 0.5 * magnitude.y);
 
-  // axis
-  {
-    canvas.strokeStyle = '#aaa';
-    canvas.beginPath();
-    canvas.moveTo(0, 0);
-    canvas.lineTo(0, height);
-    canvas.stroke();
+      canvas.stroke();
+    } else {
+      const dot = settings.impulseResponse.dotSize;
+
+      for (let i = 0; i < impulseResponse.length && margin + i * magnitude.x < width; i++) {
+        const x = margin + i * magnitude.x;
+        const y = height / 2 + impulseResponse[i] * height * 0.5 * magnitude.y;
+
+        canvas.beginPath();
+        canvas.moveTo(x, height / 2);
+        canvas.lineTo(x, y);
+        canvas.stroke();
+
+        canvas.fillRect(x - dot / 2, y - dot / 2, dot, dot);
+      }
+    }
   }
 }
 
-function update_response(coefficients) {
+function update_response(coefficients, parameters) {
   const width = $('#response').width();
   const height = $('#response').height();
   const impulseRenponse = Calc.getImpulseResponse(coefficients, impulse_size);
@@ -151,8 +292,8 @@ function update_response(coefficients) {
 
   $('#response').attr('height', height).attr('width', width);
   canvas.clearRect(0, 0, width, height);
-  draw_frequency_response(impulseRenponse, canvas, width, height);
-  //draw_impulse_response(impulseRenponse, canvas, width, height);
+  drawFrequencyResponse(impulseRenponse, canvas, width, height, parameters);
+  //drawImpulseResponse(impulseRenponse, canvas, width, height);
 }
 
 function update_filter() {
@@ -172,7 +313,7 @@ function update_filter() {
   diagram_assign.forEach((a, i) => $(a, diagram).text(`${coefficients[i].toFixed(9)}`));
 
   // impulse response
-  update_response(coefficients);
+  update_response(coefficients, parameters);
 }
 
 String.prototype.withCommas = Number.prototype.withCommas = function () { return String(this).replace(/\B(?=(\d{3})+(?!\d))/g, ","); }
