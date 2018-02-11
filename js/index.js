@@ -141,6 +141,108 @@ function update_control(filter) {
     .forEach(c => $(`#${c}`).attr('disabled', 'true').parents('.control-row').addClass('disabled'));
 }
 
+function drawPhaseResponse(impulseResponse, canvas, width, height, parameters) {
+  const real = impulseResponse;
+  const imag = new Float64Array(real.length);
+  transform(real, imag);
+  const phaseResponse = new Float64Array(real.length / 2).map((_, i) => Math.atan2(imag[i], real[i]))
+  const margin = settings.phaseResponse.margin;
+
+  const graphHeight = height - margin.y;
+  const graphCenter = graphHeight / 2;
+  const magnitude = settings.phaseResponse.magnitude * graphCenter / Math.PI;
+
+  // auxiliary line - y
+  {
+    canvas.font = settings.phaseResponse.font;
+    canvas.textAlign = 'right';
+    canvas.textBaseline = 'middle';
+    canvas.fillStyle = settings.phaseResponse.fill;
+
+    canvas.strokeStyle = settings.phaseResponse.auxiliaryLine.stroke;
+    settings.phaseResponse.auxiliaryLine.y.values.forEach(phase => {
+      canvas.beginPath();
+      canvas.moveTo(margin.x, graphCenter - phase * magnitude);
+      canvas.lineTo(width, graphCenter - phase * magnitude);
+      canvas.stroke();
+    });
+
+    // base line
+    canvas.strokeStyle = settings.phaseResponse.baseLine.stroke;
+    canvas.beginPath();
+    canvas.moveTo(margin.x, graphCenter);
+    canvas.lineTo(width, graphCenter);
+    canvas.stroke();
+
+    canvas.fillText('0', margin.x - 4, graphCenter);
+    settings.phaseResponse.auxiliaryLine.y.texts.forEach((t, i) => canvas.fillText(t, margin.x - 4, graphCenter - settings.phaseResponse.auxiliaryLine.y.values[i] * magnitude));
+  }
+
+  // cutoff line
+  {
+    const cutoff = parameters.cutoff / (parameters.sampling_rate * 0.5);
+    canvas.strokeStyle = settings.phaseResponse.cutoffLine.stroke;
+    canvas.setLineDash([5, 5]);
+    canvas.beginPath();
+    canvas.moveTo(margin.x + cutoff * (width - margin.x), 0);
+    canvas.lineTo(margin.x + cutoff * (width - margin.x), graphHeight);
+    canvas.stroke();
+    canvas.setLineDash([]);
+
+    canvas.font = settings.phaseResponse.font;
+    canvas.textAlign = cutoff > 0.5 ? 'right' : 'left';
+    canvas.textBaseline = 'top';
+    canvas.fillStyle = settings.phaseResponse.fill;
+    canvas.fillText(`${parameters.cutoff.withCommas()} Hz`, margin.x + cutoff * (width - margin.x), 0);
+  }
+
+  // auxiliary line - x
+  {
+    canvas.strokeStyle = settings.phaseResponse.auxiliaryLine.stroke;
+    generateFrequencyAuxiliary(parameters.sampling_rate).forEach(f => {
+      const freq = f / (parameters.sampling_rate * 0.5);
+      canvas.beginPath();
+      canvas.moveTo(margin.x + freq * (width - margin.x), 0);
+      canvas.lineTo(margin.x + freq * (width - margin.x), graphHeight);
+      canvas.stroke();
+    });
+  }
+
+  // phase response
+  {
+    canvas.strokeStyle = settings.phaseResponse.stroke;
+    canvas.beginPath();
+    canvas.moveTo(margin.x, graphCenter - phaseResponse[0] * magnitude);
+    phaseResponse.forEach((p, i, a) => canvas.lineTo(margin.x + (i / a.length) * (width - margin.x), graphCenter - p * magnitude));
+    canvas.stroke();
+
+    // trim
+    canvas.clearRect(0, graphHeight, width, height);
+  }
+
+  // axis
+  {
+    canvas.strokeStyle = settings.phaseResponse.axis.stroke;
+    canvas.beginPath();
+    canvas.moveTo(margin.x, 0);
+    canvas.lineTo(margin.x, graphHeight);
+    canvas.lineTo(width, graphHeight);
+    canvas.stroke();
+  }
+
+  // auxiliary line - x
+  {
+    canvas.font = settings.phaseResponse.font;
+    canvas.textAlign = 'center';
+    canvas.textBaseline = 'top';
+    canvas.fillStyle = settings.phaseResponse.fill;
+    generateFrequencyAuxiliary(parameters.sampling_rate).forEach(f => {
+      const freq = f / (parameters.sampling_rate * 0.5);
+      canvas.fillText(`${frequencyFormat(f)}`, margin.x + freq * (width - margin.x), graphHeight);
+    });
+  }
+}
+
 function drawFrequencyResponse(impulseResponse, canvas, width, height, parameters) {
   const real = impulseResponse;
   const imag = new Float64Array(real.length);
