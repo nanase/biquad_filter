@@ -151,6 +151,7 @@ function drawPhaseResponse(impulseResponse, canvas, width, height, parameters) {
   const graphHeight = height - margin.y;
   const graphCenter = graphHeight / 2;
   const magnitude = settings.phaseResponse.magnitude * graphCenter / Math.PI;
+  const cutoff = parameters.cutoff / (parameters.sampling_rate * 0.5);
 
   // auxiliary line - y
   {
@@ -180,7 +181,6 @@ function drawPhaseResponse(impulseResponse, canvas, width, height, parameters) {
 
   // cutoff line
   {
-    const cutoff = parameters.cutoff / (parameters.sampling_rate * 0.5);
     canvas.strokeStyle = settings.phaseResponse.cutoffLine.stroke;
     canvas.setLineDash([5, 5]);
     canvas.beginPath();
@@ -188,12 +188,6 @@ function drawPhaseResponse(impulseResponse, canvas, width, height, parameters) {
     canvas.lineTo(margin.x + cutoff * (width - margin.x), graphHeight);
     canvas.stroke();
     canvas.setLineDash([]);
-
-    canvas.font = settings.phaseResponse.font;
-    canvas.textAlign = cutoff > 0.5 ? 'right' : 'left';
-    canvas.textBaseline = 'top';
-    canvas.fillStyle = settings.phaseResponse.fill;
-    canvas.fillText(`${parameters.cutoff.withCommas()} Hz`, margin.x + cutoff * (width - margin.x), 0);
   }
 
   // auxiliary line - x
@@ -241,6 +235,15 @@ function drawPhaseResponse(impulseResponse, canvas, width, height, parameters) {
       canvas.fillText(`${frequencyFormat(f)}`, margin.x + freq * (width - margin.x), graphHeight);
     });
   }
+
+  // cutoff text
+  {
+    canvas.font = settings.phaseResponse.font;
+    canvas.textAlign = cutoff > 0.5 ? 'right' : 'left';
+    canvas.textBaseline = 'top';
+    canvas.fillStyle = settings.phaseResponse.fill;
+    canvas.fillText(` ${parameters.cutoff.withCommas()} Hz `, margin.x + cutoff * (width - margin.x), 0);
+  }
 }
 
 function drawFrequencyResponse(impulseResponse, canvas, width, height, parameters) {
@@ -250,6 +253,7 @@ function drawFrequencyResponse(impulseResponse, canvas, width, height, parameter
   const frequencyResponse = new Float64Array(real.length / 2).map((_, i) => Math.log10(Math.sqrt(real[i] * real[i] + imag[i] * imag[i])) * 20)
   const magnitude = settings.frequencyResponse.magnitude;
   const margin = settings.frequencyResponse.margin;
+  const cutoff = parameters.cutoff / (parameters.sampling_rate * 0.5);
 
   const graphHeight = height - margin.y;
   const graphCenter = graphHeight / 2;
@@ -282,7 +286,6 @@ function drawFrequencyResponse(impulseResponse, canvas, width, height, parameter
 
   // cutoff line
   {
-    const cutoff = parameters.cutoff / (parameters.sampling_rate * 0.5);
     canvas.strokeStyle = settings.frequencyResponse.cutoffLine.stroke;
     canvas.setLineDash([5, 5]);
     canvas.beginPath();
@@ -290,12 +293,6 @@ function drawFrequencyResponse(impulseResponse, canvas, width, height, parameter
     canvas.lineTo(margin.x + cutoff * (width - margin.x), graphHeight);
     canvas.stroke();
     canvas.setLineDash([]);
-
-    canvas.font = settings.frequencyResponse.font;
-    canvas.textAlign = cutoff > 0.5 ? 'right' : 'left';
-    canvas.textBaseline = 'top';
-    canvas.fillStyle = settings.frequencyResponse.fill;
-    canvas.fillText(`${parameters.cutoff.withCommas()} Hz`, margin.x + cutoff * (width - margin.x), 0);
   }
 
   // auxiliary line - x
@@ -342,6 +339,15 @@ function drawFrequencyResponse(impulseResponse, canvas, width, height, parameter
       const freq = f / (parameters.sampling_rate * 0.5);
       canvas.fillText(`${frequencyFormat(f)}`, margin.x + freq * (width - margin.x), graphHeight);
     });
+  }
+
+  // cutoff text
+  {
+    canvas.font = settings.frequencyResponse.font;
+    canvas.textAlign = cutoff > 0.5 ? 'right' : 'left';
+    canvas.textBaseline = 'top';
+    canvas.fillStyle = settings.frequencyResponse.fill;
+    canvas.fillText(` ${parameters.cutoff.withCommas()} Hz `, margin.x + cutoff * (width - margin.x), 0);
   }
 }
 
