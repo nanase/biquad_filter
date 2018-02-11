@@ -19,6 +19,15 @@ a, a:visited {
   max-height: 260px;
 }
 
+.diagram-clicker {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 10;
+}
+
 select.select-dark {
   background-color: #222;
   color: inherit;
@@ -65,4 +74,22 @@ select.select-dark {
 canvas {
   max-height: 260px;
   width: 100%;
+}
+
+.dropdown-menu li {
+  padding: 0.125rem 1rem;
+}
+.dropdown-menu a, a:visited {
+  text-decoration: none;
+  color: inherit;
+}
+.dropdown-menu li:hover {
+  background-color: #ddd;
+}
+
+.modal {
+  color: #222;
+}
+.modal-body form {
+  margin-top: 1rem;
 }

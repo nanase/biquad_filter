@@ -81,8 +81,35 @@ const settings = {
     axis: {
       stroke: '#aaa',
     }
+  },
+  phaseResponse: {
+    margin: { x: 30, y: 20 },
+    magnitude: 0.9,
+    font: '10px san-serif',
+    stroke: '#fff',
+    fill: '#fff',
+    cutoffLine: {
+      stroke: '#666',
+    },
+    auxiliaryLine: {
+      stroke: '#444',
+      x: {
+      },
+      y: {
+        values: [Math.PI, -Math.PI],
+        texts: ['π', '-π'],
+      },
+    },
+    baseLine: {
+      stroke: '#666',
+    },
+    axis: {
+      stroke: '#aaa',
+    }
   }
 };
+
+let resultCoefficients = [1, 0, 0, 0, 0];
 
 function frequencyFormat(frequency) {
   if (frequency >= 1000)
@@ -306,7 +333,8 @@ function update_filter() {
     sampling_rate: $('#sampling_rate').val(),
   };
   update_control(filters[filter_type]);
-  const coefficients = Coefficients.normalize(filters[filter_type].func(parameters));
+  resultCoefficients = filters[filter_type].func(parameters);
+  const coefficients = Coefficients.normalize(resultCoefficients);
 
   // diagram
   const diagram = $($('.diagram')[0].contentDocument);
@@ -316,9 +344,47 @@ function update_filter() {
   update_response(coefficients, parameters);
 }
 
+function generateCoefficientsOutput() {
+  const five_coefficients = $('input[name=output_n_coefficients]:eq(0)').is(':checked');
+  const coefficient = five_coefficients ? Coefficients.normalize(resultCoefficients) : resultCoefficients;
+
+  if ($('input[name=output_format]:eq(0)').is(':checked')) {
+    if (five_coefficients)
+      return `b0 = ${coefficient[0]};
+b1 = ${coefficient[1]};
+b2 = ${coefficient[2]};
+a1 = ${coefficient[3]};
+a2 = ${coefficient[4]};`;
+    else
+      return `b0 = ${coefficient[0]};
+b1 = ${coefficient[1]};
+b2 = ${coefficient[2]};
+a0 = ${coefficient[3]};
+a1 = ${coefficient[4]};
+a2 = ${coefficient[5]};`;
+  } else {
+    return `[
+  ${coefficient.join(',\n  ')}
+]`;
+  }
+}
+
 String.prototype.withCommas = Number.prototype.withCommas = function () { return String(this).replace(/\B(?=(\d{3})+(?!\d))/g, ","); }
 
+new BootstrapMenu('.diagram-clicker', {
+  actions: [{
+    name: '係数のコピー',
+    onClick: function () {
+      $('#coefficients_output').val(generateCoefficientsOutput());
+      $('#coefficient_modal').modal();
+    }
+  }]
+});
+
+
 $(() => {
+  $('.modal-coefficients input[type=radio]').on('change', e => $('#coefficients_output').val(generateCoefficientsOutput()));
+
   $('#cutoff_freq').on('input', e => $('#cutoff_freq_value').text(`${$(e.target).val().withCommas()} Hz`));
   $('#q').on('input', e => $('#q_value').text(`${Math.pow(2, $(e.target).val()).toFixed(9)}`));
   $('#bandwidth').on('input', e => $('#bandwidth_value').text(`${Number($(e.target).val()).toFixed(1)} oct`));
