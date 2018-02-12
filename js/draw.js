@@ -1,5 +1,4 @@
 const impulse_size = 1024;
-const frequency_amplitude_auxiliary_line = [24, 12, 6, 3, -3, -6, -12, -24];
 
 const settings = {
   impulseResponse: {
