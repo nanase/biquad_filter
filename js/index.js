@@ -1,37 +1,37 @@
-const diagram_assign = ['#b0', '#b1', '#b2', '#a1', '#a2'];
-const filter_controls = ['cutoff_freq', 'q', 'bandwidth', 'gain'];
-const input_controls = ['input_freq', 'input_sweep_speed'];
+const diagramAssign = ['#b0', '#b1', '#b2', '#a1', '#a2'];
+const filterControls = ['cutoff_freq', 'q', 'bandwidth', 'gain'];
+const inputControls = ['input_freq', 'input_sweep_speed'];
 const filters = [
   {
-    func: p => Coefficients.lowpass(p.sampling_rate, p.cutoff, p.q),
+    func: p => Coefficients.lowpass(p.samplingRate, p.cutoff, p.q),
     control: ['cutoff_freq', 'q'],
   },
   {
-    func: p => Coefficients.highpass(p.sampling_rate, p.cutoff, p.q),
+    func: p => Coefficients.highpass(p.samplingRate, p.cutoff, p.q),
     control: ['cutoff_freq', 'q'],
   },
   {
-    func: p => Coefficients.bandpass(p.sampling_rate, p.cutoff, p.bandwidth, p.q),
+    func: p => Coefficients.bandpass(p.samplingRate, p.cutoff, p.bandwidth, p.q),
     control: ['cutoff_freq', 'bandwidth', 'q'],
   },
   {
-    func: p => Coefficients.bandstop(p.sampling_rate, p.cutoff, p.bandwidth),
+    func: p => Coefficients.bandstop(p.samplingRate, p.cutoff, p.bandwidth),
     control: ['cutoff_freq', 'bandwidth'],
   },
   {
-    func: p => Coefficients.lowshelf(p.sampling_rate, p.cutoff, p.gain, p.q),
+    func: p => Coefficients.lowshelf(p.samplingRate, p.cutoff, p.gain, p.q),
     control: ['cutoff_freq', 'gain', 'q'],
   },
   {
-    func: p => Coefficients.highshelf(p.sampling_rate, p.cutoff, p.gain, p.q),
+    func: p => Coefficients.highshelf(p.samplingRate, p.cutoff, p.gain, p.q),
     control: ['cutoff_freq', 'gain', 'q'],
   },
   {
-    func: p => Coefficients.peaking(p.sampling_rate, p.cutoff, p.bandwidth, p.gain),
+    func: p => Coefficients.peaking(p.samplingRate, p.cutoff, p.bandwidth, p.gain),
     control: ['cutoff_freq', 'bandwidth', 'gain'],
   },
   {
-    func: p => Coefficients.allpass(p.sampling_rate, p.cutoff, p.q),
+    func: p => Coefficients.allpass(p.samplingRate, p.cutoff, p.q),
     control: ['cutoff_freq', 'q'],
   }
 ];
@@ -74,45 +74,45 @@ let currentDrawFunc = 1;
 
 function updateFilterControl(filter) {
   // enable
-  filter_controls.filter(x => filter.control.some(y => x == y))
+  filterControls.filter(x => filter.control.some(y => x == y))
     .forEach(c => $(`#${c}`).removeAttr('disabled').parents('.control-row').removeClass('disabled'));
 
   // disable
-  filter_controls.filter(x => !filter.control.some(y => x == y))
+  filterControls.filter(x => !filter.control.some(y => x == y))
     .forEach(c => $(`#${c}`).attr('disabled', 'true').parents('.control-row').addClass('disabled'));
 }
 
 function updateInputControl(inputSingnal) {
   // enable
-  input_controls.filter(x => inputSingnal.control.some(y => x == y))
+  inputControls.filter(x => inputSingnal.control.some(y => x == y))
     .forEach(c => $(`#${c}`).removeAttr('disabled').parents('.control-row').removeClass('disabled'));
 
   // disable
-  input_controls.filter(x => !inputSingnal.control.some(y => x == y))
+  inputControls.filter(x => !inputSingnal.control.some(y => x == y))
     .forEach(c => $(`#${c}`).attr('disabled', 'true').parents('.control-row').addClass('disabled'));
 }
 
-function update_filter() {
-  const filter_type = Number($('#filter_type').val());
+function updateFilter() {
+  const filterType = Number($('#filter_type').val());
   const parameters = {
     cutoff: $('#cutoff_freq').val(),
     q: Math.pow(2, $('#q').val()),
     bandwidth: $('#bandwidth').val(),
     gain: $('#gain').val(),
-    sampling_rate: $('#sampling_rate').val(),
+    samplingRate: $('#sampling_rate').val(),
   };
-  updateFilterControl(filters[filter_type]);
-  resultCoefficients = filters[filter_type].func(parameters);
+  updateFilterControl(filters[filterType]);
+  resultCoefficients = filters[filterType].func(parameters);
   const coefficients = Coefficients.normalize(resultCoefficients);
   filterCalc.setCoefficients(coefficients);
   filterCalc.reset();
 
   // diagram
   const diagram = $($('.diagram')[0].contentDocument);
-  diagram_assign.forEach((a, i) => $(a, diagram).text(`${coefficients[i].toFixed(9)}`));
+  diagramAssign.forEach((a, i) => $(a, diagram).text(`${coefficients[i].toFixed(9)}`));
 
   // impulse response
-  update_response(coefficients, parameters);
+  updateResponse(coefficients, parameters);
 }
 
 function generateCoefficientsOutput() {
@@ -160,21 +160,21 @@ $(() => {
       name: 'インパルス応答',
       onClick: () => {
         currentDrawFunc = 0;
-        update_filter();
+        updateFilter();
       }
     },
     {
       name: '周波数応答',
       onClick: () => {
         currentDrawFunc = 1;
-        update_filter();
+        updateFilter();
       }
     },
     {
       name: '位相応答',
       onClick: () => {
         currentDrawFunc = 2;
-        update_filter();
+        updateFilter();
       }
     }]
   });
@@ -200,7 +200,7 @@ $(() => {
       $('#input_freq_value').text(`${max_value.withCommas()} Hz`);
     }
   });
-  $('.control-col input[type=range], .control-col select').on('input', update_filter);
+  $('.control-col input[type=range], .control-col select').on('input', updateFilter);
 
   $('#input_volume').on('input', e => $('#input_volume_value').text(`${($(e.target).val() * 100).toFixed(0)} %`));
   $('#input_freq').on('input', e => $('#input_freq_value').text(`${$(e.target).val().withCommas()} Hz`));
@@ -241,5 +241,5 @@ $(() => {
     });
   }
 
-  $('.diagram').on('load', update_filter);
+  $('.diagram').on('load', updateFilter);
 });

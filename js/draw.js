@@ -1,5 +1,4 @@
-const impulse_size = 1024;
-
+const impulseSize = 1024;
 const settings = {
   impulseResponse: {
     connected: false,
@@ -104,7 +103,7 @@ function drawPhaseResponse(impulseResponse, canvas, width, height, parameters) {
   const graphHeight = height - margin.y;
   const graphCenter = graphHeight / 2;
   const magnitude = settings.phaseResponse.magnitude * graphCenter / Math.PI;
-  const cutoff = parameters.cutoff / (parameters.sampling_rate * 0.5);
+  const cutoff = parameters.cutoff / (parameters.samplingRate * 0.5);
 
   // auxiliary line - y
   {
@@ -146,8 +145,8 @@ function drawPhaseResponse(impulseResponse, canvas, width, height, parameters) {
   // auxiliary line - x
   {
     canvas.strokeStyle = settings.phaseResponse.auxiliaryLine.stroke;
-    generateFrequencyAuxiliary(parameters.sampling_rate).forEach(f => {
-      const freq = f / (parameters.sampling_rate * 0.5);
+    generateFrequencyAuxiliary(parameters.samplingRate).forEach(f => {
+      const freq = f / (parameters.samplingRate * 0.5);
       canvas.beginPath();
       canvas.moveTo(margin.x + freq * (width - margin.x), 0);
       canvas.lineTo(margin.x + freq * (width - margin.x), graphHeight);
@@ -183,8 +182,8 @@ function drawPhaseResponse(impulseResponse, canvas, width, height, parameters) {
     canvas.textAlign = 'center';
     canvas.textBaseline = 'top';
     canvas.fillStyle = settings.phaseResponse.fill;
-    generateFrequencyAuxiliary(parameters.sampling_rate).forEach(f => {
-      const freq = f / (parameters.sampling_rate * 0.5);
+    generateFrequencyAuxiliary(parameters.samplingRate).forEach(f => {
+      const freq = f / (parameters.samplingRate * 0.5);
       canvas.fillText(`${frequencyFormat(f)}`, margin.x + freq * (width - margin.x), graphHeight);
     });
   }
@@ -206,7 +205,7 @@ function drawFrequencyResponse(impulseResponse, canvas, width, height, parameter
   const frequencyResponse = new Float64Array(real.length / 2).map((_, i) => Math.log10(Math.sqrt(real[i] * real[i] + imag[i] * imag[i])) * 20)
   const magnitude = settings.frequencyResponse.magnitude;
   const margin = settings.frequencyResponse.margin;
-  const cutoff = parameters.cutoff / (parameters.sampling_rate * 0.5);
+  const cutoff = parameters.cutoff / (parameters.samplingRate * 0.5);
 
   const graphHeight = height - margin.y;
   const graphCenter = graphHeight / 2;
@@ -251,8 +250,8 @@ function drawFrequencyResponse(impulseResponse, canvas, width, height, parameter
   // auxiliary line - x
   {
     canvas.strokeStyle = settings.frequencyResponse.auxiliaryLine.stroke;
-    generateFrequencyAuxiliary(parameters.sampling_rate).forEach(f => {
-      const freq = f / (parameters.sampling_rate * 0.5);
+    generateFrequencyAuxiliary(parameters.samplingRate).forEach(f => {
+      const freq = f / (parameters.samplingRate * 0.5);
       canvas.beginPath();
       canvas.moveTo(margin.x + freq * (width - margin.x), 0);
       canvas.lineTo(margin.x + freq * (width - margin.x), graphHeight);
@@ -288,8 +287,8 @@ function drawFrequencyResponse(impulseResponse, canvas, width, height, parameter
     canvas.textAlign = 'center';
     canvas.textBaseline = 'top';
     canvas.fillStyle = settings.frequencyResponse.fill;
-    generateFrequencyAuxiliary(parameters.sampling_rate).forEach(f => {
-      const freq = f / (parameters.sampling_rate * 0.5);
+    generateFrequencyAuxiliary(parameters.samplingRate).forEach(f => {
+      const freq = f / (parameters.samplingRate * 0.5);
       canvas.fillText(`${frequencyFormat(f)}`, margin.x + freq * (width - margin.x), graphHeight);
     });
   }
@@ -372,10 +371,10 @@ function drawImpulseResponse(impulseResponse, canvas, width, height) {
   }
 }
 
-function update_response(coefficients, parameters) {
+function updateResponse(coefficients, parameters) {
   const width = $('#response').width();
   const height = $('#response').height();
-  const impulseRenponse = Calc.getImpulseResponse(coefficients, impulse_size);
+  const impulseRenponse = Calc.getImpulseResponse(coefficients, impulseSize);
   const canvas = $('#response')[0].getContext('2d');
 
   $('#response').attr('height', height).attr('width', width);

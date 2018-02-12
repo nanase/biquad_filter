@@ -79,10 +79,12 @@ canvas {
 .dropdown-menu li {
   padding: 0.125rem 1rem;
 }
+
 .dropdown-menu a, a:visited {
   text-decoration: none;
   color: inherit;
 }
+
 .dropdown-menu li:hover {
   background-color: #ddd;
 }
@@ -90,6 +92,7 @@ canvas {
 .modal {
   color: #222;
 }
+
 .modal-body form {
   margin-top: 1rem;
 }
