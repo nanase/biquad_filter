@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <title>Biquad Filter</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/css/bootstrap.min.css" integrity="sha384-Zug+QiDoJOrZ5t4lssLdxGhVrurbmBWopoEl+M6BdEfwnCJZtKxi1KgxUyJq13dy"
+    crossorigin="anonymous" />
+  <link rel="stylesheet" href="css/index.css" />
+</head>
+
+<body>
+  <nav class="navbar navbar-dark bg-dark">
+    <span class="navbar-brand">
+      Biquad Filter
+    </span>
+    <nav class="nav">
+      <a class="nav-link disabled" href="./">JP</a>
+      <span class="nav-link active">EN</span>
+      <a class="nav-link reference-link" href="#">Reference</a>
+      <a class="nav-link nav-icon" href="https://github.com/nanase/biquad_filter" target="_blank">
+        <span class=" svg svg-github"></span>
+      </a>
+    </nav>
+  </nav>
+  
+  <div class="container">
+    <div class="row">
+      <div class="col-xs-12 col-md-6">
+        <object class="diagram" type="image/svg+xml" data="img/biquad_5_coefficients.svg"></object>
+        <div class="diagram-clicker"></div>
+      </div>
+      <div class="control-panel col-xs-12 col-md-6">
+        <div class="row">
+          <div class="control-col col-4 text-right control-name">
+            Filter :
+          </div>
+          <div class="control-col col-8">
+            <select id="filter_type" class="select-dark custom-select custom-select-sm">
+              <option value="0" selected>Low-pass filter (LPF)</option>
+              <option value="1">High-pass filter (HPF)</option>
+              <option value="2">Band-pass filter (BPF)</option>
+              <option value="3">Notch filter (BSF)</option>
+              <option value="4">Low-shelf filter (LSF)</option>
+              <option value="5">High-shelf filter (HSF)</option>
+              <option value="6">Peaking filter</option>
+              <option value="7">All-pass filter</option>
+            </select>
+          </div>
+        </div>
+        <div class="row control-row">
+          <div class="control-col col-4 text-right control-name">Cutoff frequency :</div>
+          <div class="control-col col-5">
+            <input id="cutoff_freq" type="range" max="23999" min="1" value="1000" />
+          </div>
+          <div class="control-col col-3">
+            <span id="cutoff_freq_value" class="control-value">1,000 Hz</span>
+          </div>
+        </div>
+        <div class="row control-row">
+          <div class="control-col col-4 text-right control-name">Q :</div>
+          <div class="control-col col-5">
+            <input id="q" type="range" max="4" min="-4" value="-0.5" step="0.125" />
+          </div>
+          <div class="control-col col-3">
+            <span id="q_value" class="control-value">0.707106781</span>
+          </div>
+        </div>
+        <div class="row control-row">
+          <div class="control-col col-4 text-right control-name">Band width :</div>
+          <div class="control-col col-5">
+            <input id="bandwidth" type="range" max="12" min="0" value="1" step="0.1" />
+          </div>
+          <div class="control-col col-3">
+            <span id="bandwidth_value" class="control-value">1.0 oct</span>
+          </div>
+        </div>
+        <div class="row control-row">
+          <div class="control-col col-4 text-right control-name">Gain :</div>
+          <div class="control-col col-5">
+            <input id="gain" type="range" max="30" min="-30" value="0.0" step="0.1" />
+          </div>
+          <div class="control-col col-3">
+            <span id="gain_value" class="control-value">0.0 dB</span>
+          </div>
+        </div>
+        <div class="row control-row">
+          <div class="control-col col-4 text-right control-name">Sampling rate :</div>
+          <div class="control-col col-5">
+            <input id="sampling_rate" type="range" max="48000" min="3000" value="48000" />
+          </div>
+          <div class="control-col col-3">
+            <span id="sampling_rate_value" class="control-value">48,000 Hz</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-xs-12 col-md-6">
+        <canvas id="response"></canvas>
+      </div>
+      <div class="control-panel col-xs-12 col-md-6">
+        <div class="row" style="margin-bottom: 1rem">
+          <div class="control-col col-4 text-right control-name">
+          </div>
+          <div class="control-col col-8">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" value="" id="sound_playing">
+              <label class="form-check-label" for="sound_playing">
+                Sound
+              </label>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="control-col col-4 text-right control-name">
+            Waveform :
+          </div>
+          <div class="control-col col-8">
+            <select id="input_waveform" class="select-dark custom-select custom-select-sm">
+              <option value="0" selected>Whitenoise</option>
+              <option value="1">Sine wave</option>
+              <option value="2">Square wave</option>
+              <option value="3">Sawtooth wave</option>
+              <option value="4">Triangle wave</option>
+              <option value="5">Sweep</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="row control-row">
+          <div class="control-col col-4 text-right control-name">Input volume :</div>
+          <div class="control-col col-5">
+            <input id="input_volume" type="range" max="1" min="0" step="0.01" value="0.2" />
+          </div>
+          <div class="control-col col-3">
+            <span id="input_volume_value" class="control-value">20 %</span>
+          </div>
+        </div>
+
+        <div class="row control-row">
+          <div class="control-col col-4 text-right control-name">Input frequency :</div>
+          <div class="control-col col-5">
+            <input id="input_freq" type="range" max="23999" min="1" value="1000" />
+          </div>
+          <div class="control-col col-3">
+            <span id="input_freq_value" class="control-value">1,000 Hz</span>
+          </div>
+        </div>
+
+        <div class="row control-row">
+          <div class="control-col col-4 text-right control-name">Sweep speed :</div>
+          <div class="control-col col-5">
+            <input id="input_sweep_speed" type="range" max="1" min="0.01" step="0.01" value="1" />
+          </div>
+          <div class="control-col col-3">
+            <span id="input_sweep_speed_value" class="control-value">1.00</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-coefficients modal fade" id="coefficient_modal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Copying coefficients</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="btn-group btn-group-toggle" data-toggle="buttons">
+            <label class="btn btn-primary btn-sm active">
+              <input type="radio" name="output_n_coefficients" id="output_5_coefficients" autocomplete="off" checked> 5 coefficients
+            </label>
+            <label class="btn btn-primary btn-sm">
+              <input type="radio" name="output_n_coefficients" id="output_6_coefficients" autocomplete="off"> 6 coefficients
+            </label>
+          </div>
+          <div class="btn-group btn-group-toggle" data-toggle="buttons">
+            <label class="btn btn-secondary btn-sm active">
+              <input type="radio" name="output_format" id="output_veriable" autocomplete="off" checked> Variable
+            </label>
+            <label class="btn btn-secondary btn-sm">
+              <input type="radio" name="output_format" id="output_array" autocomplete="off"> Array
+            </label>
+          </div>
+          <form>
+            <div class="form-group">
+              <textarea class="form-control" id="coefficients_output" rows="8"></textarea>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-reference modal fade" id="reference_modal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Reference</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <section>
+            <h6>Cookbook formulae for audio EQ biquad filter coefficients</h6>
+            <p>
+              <a href="http://www.musicdsp.org/files/Audio-EQ-Cookbook.txt" target="_blank">
+                http://www.musicdsp.org/files/Audio-EQ-Cookbook.txt
+              </a>
+            </p>
+          </section>
+
+          <section>
+            <h6>簡単なデジタルフィルタの実装 - C++でVST作り</h6>
+            <p>
+              <a href="http://vstcpp.wpblog.jp/?page_id=523" target="_blank">
+                http://vstcpp.wpblog.jp/?page_id=523
+              </a>
+            </p>
+          </section>
+
+          <section>
+            <h6>The Scientist and Engineer's Guide to Digital Signal Processing The z-Transform</h6>
+            <p>
+              <a href="http://www.analog.com/media/en/technical-documentation/dsp-book/dsp_book_Ch33.pdf" target="_blank">
+                http://www.analog.com/media/en/technical-documentation/dsp-book/dsp_book_Ch33.pdf
+              </a>
+            </p>
+          </section>
+
+          <hr />
+
+          <section>
+            <h6>Free FFT and convolution (JavaScript)</h6>
+            <p>
+              Copyright (c) 2017 Project Nayuki
+              <br /> Licensed under the MIT License
+              <br />
+              <a href="https://www.nayuki.io/page/free-small-fft-in-multiple-languages" target="_blank">
+                https://www.nayuki.io/page/free-small-fft-in-multiple-languages
+              </a>
+            </p>
+          </section>
+
+          <section>
+            <h6>jQuery</h6>
+            <p>
+              Copyright 2018 The jQuery Foundation
+              <br /> Licensed under the MIT License
+              <br />
+              <a href="https://jquery.org/" target="_blank">
+                https://jquery.org/
+              </a>
+            </p>
+          </section>
+
+          <section>
+            <h6>Bootstrap</h6>
+            <p>
+              Copyright 2011-2016 Twitter, Inc.
+              <br /> Licensed under the MIT License
+              <br />
+              <a href="https://github.com/twbs/bootstrap" target="_blank">
+                https://github.com/twbs/bootstrap
+              </a>
+            </p>
+          </section>
+
+          <section>
+            <h6>dgoguerra/bootstrap-menu</h6>
+            <p>
+              Licensed under the MIT License
+              <br />
+              <a href="https://github.com/dgoguerra/bootstrap-menu" target="_blank">
+                https://github.com/dgoguerra/bootstrap-menu
+              </a>
+            </p>
+          </section>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+<script>
+  const language = {
+    impulseResponse: 'Impulse response',
+    frequencyResponse: 'Frequency response',
+    phaseResponse: 'Phase response',
+    copyingCoefficients: 'Copying coefficients',
+  };
+</script>
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+  crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+  crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/js/bootstrap.min.js" integrity="sha384-a5N7Y/aK3qNeh15eJKGWxsqtnX/wWdSZSKp+81YjTmS15nvnvxKHuzaWwXHDli+4"
+  crossorigin="anonymous"></script>
+<script src="js/BootstrapMenu.min.js"></script>
+<script src="js/fft.js"></script>
+<script src="js/filter.js"></script>
+<script src="js/calc.js"></script>
+<script src="js/draw.js"></script>
+<script src="js/index.js"></script>
+
+</html>
