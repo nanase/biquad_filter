@@ -147,7 +147,7 @@ $(() => {
 
   new BootstrapMenu('.diagram-clicker', {
     actions: [{
-      name: '係数のコピー',
+      name: language.copyingCoefficients,
       onClick: () => {
         $('#coefficients_output').val(generateCoefficientsOutput());
         $('#coefficient_modal').modal();
@@ -157,21 +157,21 @@ $(() => {
 
   new BootstrapMenu('#response', {
     actions: [{
-      name: 'インパルス応答',
+      name: language.impulseResponse,
       onClick: () => {
         currentDrawFunc = 0;
         updateFilter();
       }
     },
     {
-      name: '周波数応答',
+      name: language.frequencyResponse,
       onClick: () => {
         currentDrawFunc = 1;
         updateFilter();
       }
     },
     {
-      name: '位相応答',
+      name: language.phaseResponse,
       onClick: () => {
         currentDrawFunc = 2;
         updateFilter();
@@ -242,4 +242,6 @@ $(() => {
   }
 
   $('.diagram').on('load', updateFilter);
+
+  $('.reference-link').on('click', e => $('#reference_modal').modal());
 });
