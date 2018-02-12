@@ -95,16 +95,6 @@ function generateFrequencyAuxiliary(samplingRate) {
   return auxiliary;
 }
 
-function update_control(filter) {
-  // enable
-  filter_controls.filter(x => filter.control.some(y => x == y))
-    .forEach(c => $(`#${c}`).removeAttr('disabled').parents('.control-row').removeClass('disabled'));
-
-  // disable
-  filter_controls.filter(x => !filter.control.some(y => x == y))
-    .forEach(c => $(`#${c}`).attr('disabled', 'true').parents('.control-row').addClass('disabled'));
-}
-
 function drawPhaseResponse(impulseResponse, canvas, width, height, parameters) {
   const real = impulseResponse;
   const imag = new Float64Array(real.length);

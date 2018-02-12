@@ -1,43 +1,96 @@
 const diagram_assign = ['#b0', '#b1', '#b2', '#a1', '#a2'];
-const filter_controls = ['cutoff_freq', 'q', 'bandwidth', 'gain', 'sampling_rate'];
+const filter_controls = ['cutoff_freq', 'q', 'bandwidth', 'gain'];
+const input_controls = ['input_freq', 'input_sweep_speed'];
 const filters = [
   {
     func: p => Coefficients.lowpass(p.sampling_rate, p.cutoff, p.q),
-    control: ['sampling_rate', 'cutoff_freq', 'q'],
+    control: ['cutoff_freq', 'q'],
   },
   {
     func: p => Coefficients.highpass(p.sampling_rate, p.cutoff, p.q),
-    control: ['sampling_rate', 'cutoff_freq', 'q'],
+    control: ['cutoff_freq', 'q'],
   },
   {
     func: p => Coefficients.bandpass(p.sampling_rate, p.cutoff, p.bandwidth, p.q),
-    control: ['sampling_rate', 'cutoff_freq', 'bandwidth', 'q'],
+    control: ['cutoff_freq', 'bandwidth', 'q'],
   },
   {
     func: p => Coefficients.bandstop(p.sampling_rate, p.cutoff, p.bandwidth),
-    control: ['sampling_rate', 'cutoff_freq', 'bandwidth'],
+    control: ['cutoff_freq', 'bandwidth'],
   },
   {
     func: p => Coefficients.lowshelf(p.sampling_rate, p.cutoff, p.gain, p.q),
-    control: ['sampling_rate', 'cutoff_freq', 'gain', 'q'],
+    control: ['cutoff_freq', 'gain', 'q'],
   },
   {
     func: p => Coefficients.highshelf(p.sampling_rate, p.cutoff, p.gain, p.q),
-    control: ['sampling_rate', 'cutoff_freq', 'gain', 'q'],
+    control: ['cutoff_freq', 'gain', 'q'],
   },
   {
     func: p => Coefficients.peaking(p.sampling_rate, p.cutoff, p.bandwidth, p.gain),
-    control: ['sampling_rate', 'cutoff_freq', 'bandwidth', 'gain'],
+    control: ['cutoff_freq', 'bandwidth', 'gain'],
   },
   {
     func: p => Coefficients.allpass(p.sampling_rate, p.cutoff, p.q),
-    control: ['sampling_rate', 'cutoff_freq', 'q'],
+    control: ['cutoff_freq', 'q'],
   }
 ];
 const drawFunctions = [drawImpulseResponse, drawFrequencyResponse, drawPhaseResponse];
+const signalFunctions = [
+  {
+    func: (freq, samplingRate, time, sw) => Math.random() * 2 - 1,
+    control: [],
+  },
+  {
+    func: (freq, samplingRate, time, sw) => Math.sin(2.0 * Math.PI * freq * time),
+    control: ['input_freq'],
+  },
+  {
+    func: (freq, samplingRate, time, sw) => (2.0 * Math.PI * freq * time) % (2.0 * Math.PI) < Math.PI ? 1.0 : -1.0,
+    control: ['input_freq'],
+  },
+  {
+    func: (freq, samplingRate, time, sw) => {
+      const x = (2.0 * Math.PI * freq * time) % (2.0 * Math.PI);
+      return x < Math.PI ? x / Math.PI : x / Math.PI - 2.0;
+    },
+    control: ['input_freq'],
+  },
+  {
+    func: (freq, samplingRate, time, sw) => 1.0 - Math.abs(((4.0 * freq * time) % 4.0) - 2.0),
+    control: ['input_freq'],
+  },
+  {
+    func: (freq, samplingRate, time, sw) => Math.sin(2.0 * Math.PI * (((sw * 0.125 * samplingRate) * time) % (samplingRate)) * time),
+    control: ['input_sweep_speed'],
+  },
+];
 
+
+const audioContext = new AudioContext();
+const filterCalc = new Calc();
 let resultCoefficients = [1, 0, 0, 0, 0];
 let currentDrawFunc = 1;
+
+function updateFilterControl(filter) {
+  // enable
+  filter_controls.filter(x => filter.control.some(y => x == y))
+    .forEach(c => $(`#${c}`).removeAttr('disabled').parents('.control-row').removeClass('disabled'));
+
+  // disable
+  filter_controls.filter(x => !filter.control.some(y => x == y))
+    .forEach(c => $(`#${c}`).attr('disabled', 'true').parents('.control-row').addClass('disabled'));
+}
+
+function updateInputControl(inputSingnal) {
+  // enable
+  input_controls.filter(x => inputSingnal.control.some(y => x == y))
+    .forEach(c => $(`#${c}`).removeAttr('disabled').parents('.control-row').removeClass('disabled'));
+
+  // disable
+  input_controls.filter(x => !inputSingnal.control.some(y => x == y))
+    .forEach(c => $(`#${c}`).attr('disabled', 'true').parents('.control-row').addClass('disabled'));
+}
 
 function update_filter() {
   const filter_type = Number($('#filter_type').val());
@@ -48,9 +101,11 @@ function update_filter() {
     gain: $('#gain').val(),
     sampling_rate: $('#sampling_rate').val(),
   };
-  update_control(filters[filter_type]);
+  updateFilterControl(filters[filter_type]);
   resultCoefficients = filters[filter_type].func(parameters);
   const coefficients = Coefficients.normalize(resultCoefficients);
+  filterCalc.setCoefficients(coefficients);
+  filterCalc.reset();
 
   // diagram
   const diagram = $($('.diagram')[0].contentDocument);
@@ -132,13 +187,59 @@ $(() => {
     const value = $(e.target).val();
     const max_value = ((value / 2) | 0) - 1;
     const cutoff = $('#cutoff_freq').attr('max', max_value).val();
+    const input = $('#input_freq').attr('max', max_value).val();
     $('#sampling_rate_value').text(`${value.withCommas()} Hz`);
 
     if (cutoff >= max_value) {
       $('#cutoff_freq').val(max_value);
       $('#cutoff_freq_value').text(`${max_value.withCommas()} Hz`);
     }
+
+    if (input >= max_value) {
+      $('#input_freq').val(max_value);
+      $('#input_freq_value').text(`${max_value.withCommas()} Hz`);
+    }
   });
   $('.control-col input[type=range], .control-col select').on('input', update_filter);
+
+  $('#input_volume').on('input', e => $('#input_volume_value').text(`${($(e.target).val() * 100).toFixed(0)} %`));
+  $('#input_freq').on('input', e => $('#input_freq_value').text(`${$(e.target).val().withCommas()} Hz`));
+  $('#input_sweep_speed').on('input', e => $('#input_sweep_speed_value').text(Number($(e.target).val()).toFixed(2)));
+  $('#input_waveform').on('input', e => updateInputControl(signalFunctions[Number($(e.target).val())]));
+  updateInputControl(signalFunctions[Number($('#input_waveform').val())]);
+
+  {
+    const samplingRate = Number($('#sampling_rate').val());
+    const node = audioContext.createScriptProcessor(4096, 1, 1);
+    let time = 0.0;
+
+    node.onaudioprocess = e => {
+      const signal = e.outputBuffer.getChannelData(0);
+      const volume = Number($('#input_volume').val()) * ($('#sound_playing').is(':checked') ? 1.0 : 0.0);
+      const freq = Number($('#input_freq').val());
+      const sweepSpeed = Number($('#input_sweep_speed').val());
+      const func = signalFunctions[Number($('#input_waveform').val())].func;
+
+      for (let i = 0; i < signal.length; i++) {
+        signal[i] = func(freq, samplingRate, time, sweepSpeed) * volume;
+        time += 1.0 / samplingRate;
+      }
+
+      filterCalc.process(signal);
+    };
+
+    $('#sound_playing').on('change', e => {
+      if ($(e.target).is(':checked')) {
+        $('#sampling_rate').attr('disabled', 'true').attr('max', audioContext.sampleRate).val(audioContext.sampleRate).parents('.control-row').addClass('disabled');
+        $('#sampling_rate_value').text(`${audioContext.sampleRate.withCommas()} Hz`);
+        node.connect(audioContext.destination);
+      }
+      else {
+        $('#sampling_rate').removeAttr('disabled').parents('.control-row').removeClass('disabled');
+        node.disconnect();
+      }
+    });
+  }
+
   $('.diagram').on('load', update_filter);
 });
