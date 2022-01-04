@@ -66,8 +66,6 @@ const signalFunctions = [
   },
 ];
 
-
-const audioContext = new AudioContext();
 const filterCalc = new Calc();
 let resultCoefficients = [1, 0, 0, 0, 0];
 let currentDrawFunc = 1;
@@ -209,34 +207,39 @@ $(() => {
   updateInputControl(signalFunctions[Number($('#input_waveform').val())]);
 
   {
+    let audioContext = null;
+    let node = null;
     const samplingRate = Number($('#sampling_rate').val());
-    const node = audioContext.createScriptProcessor(4096, 1, 1);
     let time = 0.0;
-
-    node.onaudioprocess = e => {
-      const signal = e.outputBuffer.getChannelData(0);
-      const volume = Number($('#input_volume').val()) * ($('#sound_playing').is(':checked') ? 1.0 : 0.0);
-      const freq = Number($('#input_freq').val());
-      const sweepSpeed = Number($('#input_sweep_speed').val());
-      const func = signalFunctions[Number($('#input_waveform').val())].func;
-
-      for (let i = 0; i < signal.length; i++) {
-        signal[i] = func(freq, samplingRate, time, sweepSpeed) * volume;
-        time += 1.0 / samplingRate;
-      }
-
-      filterCalc.process(signal);
-    };
 
     $('#sound_playing').on('change', e => {
       if ($(e.target).is(':checked')) {
+        audioContext = new AudioContext();
+        node = audioContext.createScriptProcessor(4096, 1, 1);
         $('#sampling_rate').attr('disabled', 'true').attr('max', audioContext.sampleRate).val(audioContext.sampleRate).parents('.control-row').addClass('disabled');
         $('#sampling_rate_value').text(`${audioContext.sampleRate.withCommas()} Hz`);
+
+        node.onaudioprocess = e => {
+          const signal = e.outputBuffer.getChannelData(0);
+          const volume = Number($('#input_volume').val()) * ($('#sound_playing').is(':checked') ? 1.0 : 0.0);
+          const freq = Number($('#input_freq').val());
+          const sweepSpeed = Number($('#input_sweep_speed').val());
+          const func = signalFunctions[Number($('#input_waveform').val())].func;
+
+          for (let i = 0; i < signal.length; i++) {
+            signal[i] = func(freq, samplingRate, time, sweepSpeed) * volume;
+            time += 1.0 / samplingRate;
+          }
+
+          filterCalc.process(signal);
+        };
+
         node.connect(audioContext.destination);
       }
       else {
         $('#sampling_rate').removeAttr('disabled').parents('.control-row').removeClass('disabled');
         node.disconnect();
+        node.onaudioprocess = null;
       }
     });
   }
