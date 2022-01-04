@@ -15,6 +15,11 @@ a, a:visited {
   font-weight: bold;
 }
 
+.nav-link.active {
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+}
+
 .diagram {
   max-height: 260px;
 }
